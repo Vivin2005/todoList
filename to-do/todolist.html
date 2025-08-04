@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List App</title>
+
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        /* ===============================================
+         * CORE & SETUP STYLES
+         * =============================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #153677, #4e085f);
+            display: flex;
+            align-items: flex-start; /* Align to top to prevent cutoff on small screens */
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* ===============================================
+         * APP CONTAINER & CARD STYLES
+         * =============================================== */
+        .todo-app {
+            width: 100%;
+            max-width: 540px;
+            background: #fff;
+            padding: 40px 30px 70px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .todo-app h2 {
+            color: #002765;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .todo-app h2 i {
+            font-size: 1.5rem;
+        }
+
+        /* ===============================================
+         * DATE PICKER & INPUT ROW STYLES
+         * =============================================== */
+        .date-selector {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #edeef0;
+            border-radius: 30px;
+            padding: 10px 20px;
+            margin-bottom: 25px;
+        }
+
+        .date-selector label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        #date-picker {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            color: #555;
+            cursor: pointer;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #edeef0;
+            border-radius: 30px;
+            padding-left: 20px;
+            margin-bottom: 25px;
+        }
+
+        #input-box {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        #add-btn {
+            border: none;
+            outline: none;
+            padding: 16px 50px;
+            background: #ff5945;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 40px;
+            transition: background 0.3s ease;
+        }
+
+        #add-btn:hover {
+            background: #ff3f2b;
+        }
+        
+        /* ===============================================
+         * TASK LIST STYLES
+         * =============================================== */
+        #list-container {
+            list-style: none;
+            padding: 0;
+        }
+
+        #list-container li {
+            font-size: 17px;
+            padding: 12px 8px 12px 50px;
+            user-select: none;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            transition: background 0.2s ease;
+        }
+        
+        #list-container li:hover {
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+
+        /* Unchecked state icon */
+        #list-container li::before {
+            content: '';
+            position: absolute;
+            height: 28px;
+            width: 28px;
+            border-radius: 50%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%23555'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z' /%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: center;
+            top: 50%;
+            left: 8px;
+            transform: translateY(-50%);
+        }
+        
+        /* Checked state styles */
+        #list-container li.checked {
+            color: #555;
+            text-decoration: line-through;
+        }
+        
+        /* Checked state icon */
+        #list-container li.checked::before {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff5945'%3E%3Cpath fill-rule='evenodd' d='M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z' clip-rule='evenodd' /%3E%3C/svg%3E");
+        }
+        
+        /* Delete button */
+        #list-container li span {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            font-size: 22px;
+            color: #555;
+            line-height: 40px;
+            text-align: center;
+            border-radius: 50%;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+        
+        #list-container li span:hover {
+            background: #edeef0;
+            color: #ff3f2b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="todo-app">
+        <h2><i class="fa-solid fa-list-check"></i> To-Do List</h2>
+        
+        <div class="date-selector">
+            <label for="date-picker">Select Date:</label>
+            <input type="date" id="date-picker">
+        </div>
+
+        <div class="row">
+            <input type="text" id="input-box" placeholder="Add your task for the selected date">
+            <button id="add-btn">Add</button>
+        </div>
+
+        <ul id="list-container">
+            <!-- Tasks will be dynamically inserted here -->
+        </ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get references to all the important HTML elements
+            const inputBox = document.getElementById('input-box');
+            const datePicker = document.getElementById('date-picker');
+            const listContainer = document.getElementById('list-container');
+            const addButton = document.getElementById('add-btn');
+
+            // --- CORE LOGIC ---
+
+            /**
+             * Renders tasks for a given date on the screen.
+             * It fetches tasks from our saved data, clears the current list,
+             * and then builds the new list of tasks for the selected date.
+             */
+            const renderTasks = () => {
+                const selectedDate = datePicker.value;
+                const allTasks = loadAllTasks();
+                const tasksForDate = allTasks[selectedDate] || [];
+
+                // Clear the list before rendering new tasks
+                listContainer.innerHTML = '';
+
+                // If there are no tasks for the selected date, show a message
+                if (tasksForDate.length === 0) {
+                    const emptyLi = document.createElement('li');
+                    emptyLi.textContent = "No tasks for this day. Add one!";
+                    emptyLi.style.color = '#777';
+                    emptyLi.style.cursor = 'default';
+                    listContainer.appendChild(emptyLi);
+                    return;
+                }
+
+                tasksForDate.forEach(task => {
+                    const li = document.createElement('li');
+                    li.textContent = task.text;
+                    li.dataset.id = task.id; // Store the unique ID on the element
+
+                    if (task.completed) {
+                        li.classList.add('checked');
+                    }
+
+                    const span = document.createElement('span');
+                    span.innerHTML = '&times;'; // The 'x' for deleting
+                    li.appendChild(span);
+                    listContainer.appendChild(li);
+                });
+            };
+
+            /**
+             * Adds a new task to the list for the currently selected date.
+             */
+            const addTask = () => {
+                const taskText = inputBox.value.trim();
+                const selectedDate = datePicker.value;
+
+                if (taskText === '') {
+                    alert('You must write something!');
+                    return;
+                }
+
+                const allTasks = loadAllTasks();
+                if (!allTasks[selectedDate]) {
+                    allTasks[selectedDate] = [];
+                }
+
+                const newTask = {
+                    id: Date.now(), // A simple unique ID
+                    text: taskText,
+                    completed: false
+                };
+
+                allTasks[selectedDate].push(newTask);
+                saveAllTasks(allTasks);
+                inputBox.value = ''; // Clear the input box
+                renderTasks(); // Re-render the list to show the new task
+            };
+
+            // --- DATA HANDLING (with localStorage) ---
+
+            /**
+             * Loads all tasks from localStorage.
+             * @returns {object} An object where keys are dates and values are arrays of tasks.
+             */
+            const loadAllTasks = () => {
+                const tasksJSON = localStorage.getItem('todoAppData');
+                return tasksJSON ? JSON.parse(tasksJSON) : {};
+            };
+
+            /**
+             * Saves the entire tasks object to localStorage.
+             * @param {object} tasks - The main tasks object to save.
+             */
+            const saveAllTasks = (tasks) => {
+                localStorage.setItem('todoAppData', JSON.stringify(tasks));
+            };
+
+            // --- EVENT LISTENERS ---
+
+            // Add task when the "Add" button is clicked
+            addButton.addEventListener('click', addTask);
+            
+            // Add task when "Enter" is pressed in the input box
+            inputBox.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    addTask();
+                }
+            });
+
+            // Handle clicks on the task list (for completing or deleting tasks)
+            listContainer.addEventListener('click', (e) => {
+                const selectedDate = datePicker.value;
+                const allTasks = loadAllTasks();
+                const tasksForDate = allTasks[selectedDate] || [];
+
+                // Check if a task text (LI) was clicked to toggle completion
+                if (e.target.tagName === 'LI') {
+                    const taskId = Number(e.target.dataset.id);
+                    const taskIndex = tasksForDate.findIndex(t => t.id === taskId);
+                    
+                    if (taskIndex > -1) {
+                        tasksForDate[taskIndex].completed = !tasksForDate[taskIndex].completed;
+                        saveAllTasks(allTasks);
+                        renderTasks();
+                    }
+                } 
+                // Check if the delete button (SPAN) was clicked
+                else if (e.target.tagName === 'SPAN') {
+                    const taskId = Number(e.target.parentElement.dataset.id);
+                    // Filter out the task to be deleted
+                    allTasks[selectedDate] = tasksForDate.filter(t => t.id !== taskId);
+                    saveAllTasks(allTasks);
+                    renderTasks();
+                }
+            });
+            
+            // Re-render the tasks whenever the date changes
+            datePicker.addEventListener('change', renderTasks);
+
+            // --- INITIALIZATION ---
+
+            /**
+             * Sets up the app when the page first loads.
+             * It sets the date picker to today's date and renders today's tasks.
+             */
+            const initializeApp = () => {
+                // Set the date picker to today's date by default
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+                const day = String(today.getDate()).padStart(2, '0');
+                datePicker.value = `${year}-${month}-${day}`;
+                
+                // Render the tasks for the initial date
+                renderTasks();
+            };
+
+            initializeApp();
+        });
+    </script>
+
+</body>
+</html>
